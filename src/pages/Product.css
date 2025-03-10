@@ -1,0 +1,153 @@
+.product-page{
+  color: black;
+}
+h2{
+  color: black;
+}
+.product-page img {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 600px;
+  width:90% ;
+  margin: 0% 10%;
+  object-fit: contain;
+  color: rgb(0, 0, 0);
+}
+
+/* @media (max-width: 767px) {
+  .product-page .row {
+    gap: 30px;
+  }
+} */
+
+.product-page .rate {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  gap: 40px;
+  color: black;
+}
+
+.product-page .rate .stars i {
+  font-size: 12px;
+  color: #ffcd4e;
+  margin: 5px 5px 5px 0;
+ 
+}
+
+.product-page .info {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  color: rgb(0, 0, 0);
+}
+
+.product-page .info .price {
+  font-size: 25px;
+  font-weight: 500;
+  color: rgb(0, 0, 0);
+}
+
+.product-page p {
+  font-size: 14px;
+  margin: 20px 0;
+  color: rgb(0, 0, 0);
+}
+
+.product-page .qty-input {
+  width: 80px;
+  height: 20px;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 20px 0;
+  color: black;
+  font-size: 15px;
+}
+
+.product-page button.add {
+  width: 8rem;
+  height: 3rem;
+  padding: 10px 15px;
+  background-color: #0f3460;
+  color: white;
+  font-size: 17px;
+  border-radius: 7px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+.product-page{
+  margin-top: 3rem;
+  color: black;
+}
+h2{
+  color: black;
+}
+/* .product-page img {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  object-fit: contain;
+  color: rgb(0, 0, 0);
+} */
+
+
+
+.product-page .rate {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  gap: 40px;
+  color: black;
+}
+
+.product-page .rate .stars i {
+  font-size: 12px;
+  color: #ffcd4e;
+  margin: 5px 5px 5px 0;
+ 
+}
+
+.product-page .info {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  color: rgb(0, 0, 0);
+}
+
+.product-page .info .price {
+  font-size: 25px;
+  font-weight: 500;
+  color: rgb(0, 0, 0);
+}
+
+.product-page p {
+  font-size: 14px;
+  margin: 20px 0;
+  color: rgb(0, 0, 0);
+}
+
+.product-page .qty-input {
+  width: 80px;
+  height: 20px;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 20px 0;
+  color: black;
+  font-size: 15px;
+}
+
+.product-page button.add {
+  padding: 10px 15px;
+  background-color: #0f3460;
+  color: white;
+  font-size: 17px;
+  border-radius: 7px;
+  margin-left: 10px;
+  margin-right: 10px;
+} 

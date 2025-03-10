@@ -1,0 +1,84 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Star } from "lucide-react";
+import "./product-card-2.css";
+
+const ProductCard2 = ({ productItem }) => {
+  const navigate = useNavigate();
+  const [selectedColor, setSelectedColor] = useState(productItem.colors[0]);
+
+  const discount =
+    productItem.originalPrice > productItem.price
+      ? Math.round(
+          ((productItem.originalPrice - productItem.price) / productItem.originalPrice) * 100
+        )
+      : 0;
+
+  return (
+    <div className="product-card2">
+      {/* Product Image */}
+      <div className="product-image" onClick={() => navigate(`/product/${productItem.id}`)}>
+        <img src={productItem.imgUrl} alt={productItem.productName} className="product-img" />
+        {discount > 0 && <span className="discount-badge">{discount}% OFF</span>}
+      </div>
+
+      {/* Product Info */}
+      <div className="product-info">
+        <h3 className="product-title" onClick={() => navigate(`/product/${productItem.id}`)}>
+          {productItem.productName}
+        </h3>
+
+        {/* Color Selection */}
+        <div className="color-selection">
+          <span>Colour:</span> {selectedColor.name}
+          <div className="color-options">
+            {productItem.colors.map((color, index) => (
+              <div
+                key={index}
+                className={`color-dot ${color.code === selectedColor.code ? "active" : ""}`}
+                style={{ backgroundColor: color.code }}
+                onClick={() => setSelectedColor(color)}
+              ></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Weight/Variant Selection */}
+        <div className="weight-selection">
+          <span>{productItem.variant}</span>
+        </div>
+
+        {/* Ratings */}
+        <div className="product-rating">
+          {[...Array(5)].map((_, index) => (
+            <Star key={index} className={`star-icon ${index < productItem.rating ? "active-star" : "inactive-star"}`} />
+          ))}
+          <span className="rating-value">({productItem.reviews?.length || 0})</span>
+        </div>
+
+        {/* Features */}
+        <ul className="product-features">
+          {productItem.features.map((feature, index) => (
+            <li key={index}>{feature}</li>
+          ))}
+        </ul>
+
+        {/* Pricing & EMI Details */}
+        <div className="product-price">
+          <h4 className="current-price">₹{productItem.price}</h4>
+          {productItem.originalPrice && <span className="original-price">₹{productItem.originalPrice}</span>}
+          <p className="emi-details">No Cost EMI starts from ₹{productItem.emi}/month</p>
+        </div>
+
+        {/* Stock & Actions */}
+        <div className="stock-status">{productItem.inStock ? "In Stock" : "Out of Stock"}</div>
+        <div className="button-group">
+          <button className="buy-now-btn">Buy Now</button>
+          <button className="learn-more-btn">Learn More</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductCard2;

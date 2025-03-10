@@ -1,0 +1,76 @@
+.section {
+  width: 100%;
+  padding: 50px 0;
+  background: #f9f5f0;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.heading h1 {
+  font-size: 32px;
+  font-weight: bold;
+  color: #2c2c2c;
+}
+
+.underline {
+  width: 80px;
+  height: 4px;
+  background: #ff6600;
+  margin: 10px auto;
+  border-radius: 2px;
+}
+
+.see-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.see-more-btn {
+  background-color: #ff6600;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.see-more-btn:hover {
+  background-color: #e55b00;
+}
+
+/* 📌 Responsive Grid for Products */
+
+
+@media (max-width: 768px) {
+  .heading h1 {
+    font-size: 28px;
+  }
+
+  .product-card {
+    width: 100%; /* Full width on mobile */
+  }
+
+  .see-more-btn {
+    width: 80%;
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heading h1 {
+    font-size: 24px;
+  }
+
+  .see-more-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px;
+  }
+}

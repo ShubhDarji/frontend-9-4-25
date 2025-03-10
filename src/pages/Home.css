@@ -1,0 +1,96 @@
+/* Slider Section Styling */
+.slider-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Product Card Styling */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  height: 300px;
+  padding: 10px;
+  
+}
+img{
+  width: 200px;
+  height: 400px;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card img {
+  width: 100%;
+  height: 200px; /* Adjust as needed */
+  object-fit: contain; /* Ensures images fit well */
+  display: block;
+  margin: 0 auto;
+}
+/* Text Styling */
+.product-card h3 {
+  min-height: 40px; /* Adjust based on font size */
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+  color: #222;
+}
+
+.product-card p {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff3b30;
+}
+
+/* Slick Slider Navigation Styling */
+.slick-prev, .slick-next {
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+}
+
+.slick-prev:before, .slick-next:before {
+  font-size: 24px;
+  color: #0071c5; /* Primary theme color */
+}
+
+/* Slick Slider Dots Styling */
+.slick-dots {
+  bottom: -20px;
+}
+
+.slick-dots li button:before {
+  color: #0071c5 !important; /* Primary theme color */
+  font-size: 12px !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-card {
+    width: 180px;
+  }
+
+  .product-card img {
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slider-section {
+    padding: 10px;
+  }
+
+  .product-card {
+    width: 160px;
+  }
+
+  .product-card img {
+    height: 140px;
+  }
+}

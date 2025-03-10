@@ -1,0 +1,136 @@
+/* Wrapper Section */
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 20px;
+  background: linear-gradient(to right, #fdf3e7, #fff); /* Beige to White */
+}
+
+/* Container */
+.wrapper-container {
+  max-width: 1300px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Title */
+.title {
+  font-size: 2.4rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #000; /* Black */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+/* Title Underline */
+.title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: #ff6600; /* Orange */
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* Scrollable Brand Slider */
+.brand-slider {
+  display: flex;
+  gap: 40px;
+  overflow-x: auto;
+  padding: 20px;
+  scroll-behavior: smooth;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: grab;
+  white-space: nowrap;
+  padding-bottom: 10px;
+}
+
+/* Hide Scrollbar */
+.brand-slider::-webkit-scrollbar {
+  display: none;
+}
+
+/* Brand Item */
+.brand-item {
+  width: 110px;
+  height: 110px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  opacity: 0;
+  transform: translateX(100px);
+  border: 2px solid transparent;
+}
+
+/* Hover Effect */
+.brand-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(255, 102, 0, 0.2); /* Orange Glow */
+  border-color: #ff6600; /* Orange Border */
+}
+
+/* Brand Image */
+.brand-icon {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Ensure logos stay centered */
+.brand-item:hover .brand-icon {
+  transform: scale(1.1);
+}
+
+/* Responsive Fixes */
+@media (max-width: 992px) {
+  .title {
+    font-size: 2rem;
+  }
+  .brand-slider {
+    gap: 30px;
+  }
+  .brand-item {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.8rem;
+  }
+  .brand-slider {
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px;
+  }
+  .brand-item {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@media (max-width: 576px) {
+  .title {
+    font-size: 1.6rem;
+  }
+  .brand-slider {
+    gap: 15px;
+  }
+  .brand-item {
+    width: 80px;
+    height: 80px;
+  }
+}
