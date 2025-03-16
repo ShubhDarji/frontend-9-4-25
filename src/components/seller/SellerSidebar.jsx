@@ -1,14 +1,7 @@
 import React from "react";
 import { Layout, Menu } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  DashboardOutlined,
-  ShoppingCartOutlined,
-  ProfileOutlined,
-  DollarOutlined,
-  StarOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+import { DashboardOutlined, ShoppingOutlined, OrderedListOutlined, DollarOutlined, LogoutOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const { Sider } = Layout;
 
@@ -21,24 +14,21 @@ const SellerSidebar = () => {
   };
 
   return (
-    <Sider width={250} style={{ minHeight: "100vh", background: "#fff" }}>
-      <Menu mode="inline" defaultSelectedKeys={["1"]}>
-        <Menu.Item key="1" icon={<DashboardOutlined />}>
-          <Link to="/seller/dashboard">Dashboard</Link>
+    <Sider collapsible style={{ height: "100vh", background: "#001529" }}>
+      <Menu theme="dark" mode="vertical" defaultSelectedKeys={["1"]}>
+        <Menu.Item key="1" icon={<DashboardOutlined />} onClick={() => navigate("/seller/dashboard")}>
+          Dashboard
         </Menu.Item>
-        <Menu.Item key="2" icon={<ShoppingCartOutlined />}>
-          <Link to="/seller/products">Manage Products</Link>
+        <Menu.Item key="2" icon={<ShoppingOutlined />} onClick={() => navigate("/seller/products")}>
+          Manage Products
         </Menu.Item>
-        <Menu.Item key="3" icon={<ProfileOutlined />}>
-          <Link to="/seller/orders">Manage Orders</Link>
+        <Menu.Item key="3" icon={<OrderedListOutlined />} onClick={() => navigate("/seller/orders")}>
+          Manage Orders
         </Menu.Item>
-        <Menu.Item key="4" icon={<DollarOutlined />}>
-          <Link to="/seller/earnings">Earnings</Link>
+        <Menu.Item key="4" icon={<DollarOutlined />} onClick={() => navigate("/seller/earnings")}>
+          Earnings
         </Menu.Item>
-        <Menu.Item key="5" icon={<StarOutlined />}>
-          <Link to="/seller/reviews">Customer Reviews</Link>
-        </Menu.Item>
-        <Menu.Item key="6" icon={<LogoutOutlined />} onClick={handleLogout}>
+        <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>
           Logout
         </Menu.Item>
       </Menu>

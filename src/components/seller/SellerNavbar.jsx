@@ -1,13 +1,14 @@
 import React from "react";
-import { Layout, Button } from "antd";
+import { Layout } from "antd";
 
 const { Header } = Layout;
 
-const SellerNavbar = ({ logout }) => (
-  <Header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <h2 style={{ color: "white" }}>Seller Dashboard</h2>
-    <Button danger onClick={logout}>Logout</Button>
-  </Header>
-);
+const SellerNavbar = () => {
+  return (
+    <Header style={{ background: "#fff", padding: "0 20px", fontSize: "18px", fontWeight: "bold" }}>
+      Seller Dashboard
+    </Header>
+  );
+};
 
 export default SellerNavbar;

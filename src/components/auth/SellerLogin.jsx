@@ -1,47 +1,33 @@
-import React, { useState } from "react";
-import { Form, Input, Button, message, Card, Typography } from "antd";
-import axios from "axios";
+import React from "react";
+import { Form, Input, Button, message, Card } from "antd";
 import { useNavigate } from "react-router-dom";
-
-const { Title } = Typography;
+import axios from "axios";
 
 const SellerLogin = () => {
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {
-    setLoading(true);
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/seller/login",
-        values,
-        { withCredentials: true } // ✅ Ensures session is saved
-      );
-  
-      // ✅ Store the token
+      const { data } = await axios.post("http://localhost:5000/api/seller/login", values);
       localStorage.setItem("sellerToken", data.token);
-  
       message.success("Login successful! Redirecting...");
       setTimeout(() => navigate("/seller/dashboard"), 1500);
     } catch (error) {
       message.error(error.response?.data?.message || "Login failed.");
-    } finally {
-      setLoading(false);
     }
   };
-  
 
   return (
-    <Card style={{ maxWidth: 400, margin: "50px auto", textAlign: "center" }}>
-      <Title level={3}>Seller Login</Title>
+    <Card style={{ maxWidth: 500, margin: "auto", textAlign: "center" }}>
+      <h2>Seller Login</h2>
       <Form layout="vertical" onFinish={handleLogin}>
         <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
-          <Input placeholder="Enter your email" />
+          <Input placeholder="Enter Email" />
         </Form.Item>
         <Form.Item name="password" label="Password" rules={[{ required: true }]}>
-          <Input.Password placeholder="Enter your password" />
+          <Input.Password placeholder="Enter Password" />
         </Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading} block>
+        <Button type="primary" htmlType="submit" block>
           Login
         </Button>
       </Form>

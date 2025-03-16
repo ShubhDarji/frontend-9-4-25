@@ -5,8 +5,8 @@ import { ToastContainer } from "react-toastify";
 import NavBar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import Loader from "./components/Loader/Loaader"; // Keeping typo as per request
-import Login from "./pages/Login"; 
-
+import Login from "./pages/Login";
+import ProtectedRoute from "./ProtectedRoutes";
 // Lazy Load Components (Ensure all are default exports)
 const Home = lazy(() => import("./pages/Home"));
 const Shop = lazy(() => import("./pages/Shop"));
@@ -24,8 +24,8 @@ const AdminPasskey = lazy(() => import("./pages/admin/AdminPasskey"));
 const AdminSignup = lazy(() => import("./pages/admin/AdminSignup"));
 
 // Seller Pages (Fixing incorrect path issue)
-const SellerRegistration = lazy(() => import("./pages/seller/regisration/SellerRegistration"));
-const SellerLogin = lazy(() => import("./pages/seller/login/SellerLogin"));
+const SellerRegistration = lazy(() => import("./components/auth/SellerSignup"));
+const SellerLogin = lazy(() => import("./components/auth/SellerLogin"));
 const SellerDashboard = lazy(() => import("./pages/seller/dashboard/SellerDashboard"));
 const SellerProfile = lazy(() => import("./pages/seller/SellerProfile"));
 const ManageProducts = lazy(() => import("./pages/seller/ManageProducts"));
@@ -53,27 +53,29 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
 
-          {/* Seller Routes */}
-          <Route path="/sell-with-us" element={<SellerRegistration />} />
-          <Route path="/seller-login" element={<SellerLogin />} />
-          <Route path="/seller-dashboard" element={<SellerDashboard />} />
-          <Route path="/seller/register" element={<SellerRegistration />} />
-          <Route path="/seller/dashboard" element={<SellerDashboard />} />
-          <Route path="/seller/profile" element={<SellerProfile />} />
-          <Route path="/seller/products" element={<ManageProducts />} />
-          <Route path="/seller/orders" element={<ManageOrders />} />
-          <Route path="/seller/earnings" element={<Earnings />} />
-          <Route path="/seller/reviews" element={<Reviews />} />
-          <Route path="/seller/messages" element={<CustomerMessages />} />
+          <Route path="/seller/signup" element={<SellerRegistration />} />
+          <Route path="/seller/login" element={<SellerLogin />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin-access" element={<AdminPasskey />} />
-          <Route path="/admin-signup" element={<AdminSignup />} />
+          {/* Protected Seller Routes */}
+          <Route path="/seller" element={<ProtectedRoute />}>
+          <Route path="dashboard" element={<SellerDashboard />} />
 
-          {/* Catch-all route */}
-          <Route path="*" element={<Navigate to="/" />} />
+            <Route path="profile" element={<SellerProfile />} />
+            <Route path="products" element={<ManageProducts />} />
+            <Route path="orders" element={<ManageOrders />} />
+            <Route path="earnings" element={<Earnings />} />
+            <Route path="reviews" element={<Reviews />} />
+            <Route path="messages" element={<CustomerMessages />} />
+            </Route>
+
+            {/* Admin Routes */}
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin-access" element={<AdminPasskey />} />
+            <Route path="/admin-signup" element={<AdminSignup />} />
+
+            {/* Catch-all route */}
+            <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
         <Footer />

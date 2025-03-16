@@ -20,7 +20,7 @@ const Footer = () => {
               <li><Link to="/contact">Contact</Link></li>
               <li><Link to="/faq">FAQs</Link></li>
               <li><Link to="/privacy">Privacy Policy</Link></li>
-              <li><Link to="/sell-with-us" className="sell-link">Sell With Us</Link></li> {/* Added Sell With Us */}
+              <li><Link to="/seller/signup" className="sell-link">Sell With Us</Link></li> {/* Added Sell With Us */}
             </ul>
           </div>
 

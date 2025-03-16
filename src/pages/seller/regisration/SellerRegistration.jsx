@@ -1,176 +1,105 @@
 import React, { useState } from "react";
+import { Form, Input, Button, Upload, message, Typography, Row, Col, Card } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
+import api from "../../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import "./SellerRegistration.css";
 
-// ✅ Validation Schema using Yup
-const schema = yup.object().shape({
-  name: yup.string().required("Full Name is required").min(3, "Name is too short"),
-  email: yup.string().required("Email is required").email("Invalid email format"),
-  phone: yup.string().required("Phone number is required").matches(/^\d{10,15}$/, "Invalid phone number"),
-  businessName: yup.string().required("Business name is required"),
-  gstNumber: yup.string().required("GST/Business License Number is required"),
-  address: yup.string().required("Business address is required"),
-  password: yup.string().required("Password is required").min(6, "Password must be at least 6 characters"),
-  proof: yup
-    .mixed()
-    .required("Business proof document is required")
-    .test("fileType", "Only PDF, JPG, PNG files are allowed", (value) => {
-      return value && ["application/pdf", "image/jpeg", "image/png"].includes(value.type);
-    }),
-});
+const { Title } = Typography;
 
-const SellerRegisration = () => {
-  const [step, setStep] = useState(1);
-  const [previewURL, setPreviewURL] = useState(null);
-  const [errorMessage, setErrorMessage] = useState("");
+const SellerRegister = () => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [proofFile, setProofFile] = useState(null);
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm({ resolver: yupResolver(schema), mode: "onBlur" });
-
-  // ✅ Handle File Upload
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setValue("proof", file);
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviewURL(reader.result);
-      reader.readAsDataURL(file);
-    }
+  // Handle file upload
+  const handleFileChange = ({ file }) => {
+    setProofFile(file);
   };
-
-  // ✅ Handle Address Auto-Complete (Debounced API Calls)
-  const handleAddressChange = async (e) => {
-    const value = e.target.value;
-    setValue("address", value);
-    if (value.length > 2) {
-      try {
-        const res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${value}`);
-        if (res.data.length > 0) {
-          setValue("address", res.data[0].display_name);
-        }
-      } catch (error) {
-        console.error("Error fetching address suggestions:", error);
-      }
-    }
-  };
-
-  // ✅ Submit Form
-  const onSubmit = async (data) => {
-    setErrorMessage("");
+  const API_URL = process.env.REACT_APP_API_URL;
+  // Handle form submission
+  const handleSubmit = async (values) => {
+    setLoading(true);
   
-    // ✅ Prepare form data
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("phone", data.phone);
-    formData.append("businessName", data.businessName);
-    formData.append("gstNumber", data.gstNumber);
-    formData.append("address", data.address);
-    formData.append("password", data.password);
-    formData.append("proof", data.proof); // ✅ Fix file upload issue
+    if (!proofFile) {
+      message.error("Please upload a proof document.");
+      setLoading(false);
+      return;
+    }
   
     try {
-      // ✅ Send request to Seller Registration API
-      const res = await axios.post("http://localhost:5000/api/sellers/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const formData = new FormData();
+      Object.keys(values).forEach((key) => {
+        formData.append(key, values[key]);
       });
+      formData.append("proof", proofFile);
   
-      if (res.status === 201) {
-        alert("Registration successful! Please log in after approval.");
-        navigate("/seller-login");
-      }
+      const { data } = await api.post("/seller/register", formData);
+  
+      message.success("Registration successful! Redirecting to login...");
+  
+      setTimeout(() => {
+        navigate("/seller/login");
+      }, 2000);
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "Registration failed. Please try again.");
+      message.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
-    <div className="seller-registration-container">
-      <h2>Become a Seller</h2>
+    <Row justify="center" style={{ minHeight: "100vh", alignItems: "center", backgroundColor: "#f5f5f5" }}>
+      <Col xs={24} sm={18} md={14} lg={10}>
+        <Card style={{ padding: "20px", borderRadius: "8px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" }}>
+          <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>Seller Registration</Title>
 
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
+            <Form.Item name="name" label="Full Name" rules={[{ required: true, message: "Name is required" }]}>
+              <Input placeholder="Enter your full name" />
+            </Form.Item>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Step 1: Personal Information */}
-        {step === 1 && (
-          <div>
-            <h3>Step 1: Personal Information</h3>
-            <div className="form-group">
-              <label>Full Name</label>
-              <input type="text" {...register("name")} />
-              <p className="error-message">{errors.name?.message}</p>
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input type="email" {...register("email")} />
-              <p className="error-message">{errors.email?.message}</p>
-            </div>
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input type="text" {...register("phone")} />
-              <p className="error-message">{errors.phone?.message}</p>
-            </div>
-            <button type="button" onClick={() => setStep(2)}>Next</button>
-          </div>
-        )}
+            <Form.Item name="email" label="Email" rules={[{ required: true, type: "email", message: "Valid email required" }]}>
+              <Input placeholder="Enter your email" />
+            </Form.Item>
 
-        {/* Step 2: Business Details */}
-        {step === 2 && (
-          <div>
-            <h3>Step 2: Business Details</h3>
-            <div className="form-group">
-              <label>Business Name</label>
-              <input type="text" {...register("businessName")} />
-              <p className="error-message">{errors.businessName?.message}</p>
-            </div>
-            <div className="form-group">
-              <label>GST / Business License Number</label>
-              <input type="text" {...register("gstNumber")} />
-              <p className="error-message">{errors.gstNumber?.message}</p>
-            </div>
-            <div className="form-group">
-              <label>Business Address</label>
-              <input type="text" {...register("address")} onChange={handleAddressChange} />
-              <p className="error-message">{errors.address?.message}</p>
-            </div>
-            <button type="button" onClick={() => setStep(1)}>Back</button>
-            <button type="button" onClick={() => setStep(3)}>Next</button>
-          </div>
-        )}
+            <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: "Phone number is required" }]}>
+              <Input placeholder="Enter your phone number" />
+            </Form.Item>
 
-        {/* Step 3: Upload Documents */}
-        {step === 3 && (
-          <div>
-            <h3>Step 3: Upload Documents</h3>
-            <div className="form-group">
-              <label>Password</label>
-              <input type="password" {...register("password")} />
-              <p className="error-message">{errors.password?.message}</p>
-            </div>
-            <div className="form-group">
-              <label>Upload Proof of Business (PDF, JPG, PNG)</label>
-              <input type="file" accept=".pdf,.jpg,.png" onChange={handleFileChange} />
-              {previewURL && <img src={previewURL} alt="Preview" className="file-preview" />}
-              <p className="error-message">{errors.proof?.message}</p>
-            </div>
-            <button type="button" onClick={() => setStep(2)}>Back</button>
-            <button type="submit">Submit</button>
-          </div>
-        )}
-      </form>
-    </div>
+            <Form.Item name="businessName" label="Business Name" rules={[{ required: true, message: "Business name is required" }]}>
+              <Input placeholder="Enter your business name" />
+            </Form.Item>
+
+            <Form.Item name="gstNumber" label="GST Number" rules={[{ required: true, message: "GST number is required" }]}>
+              <Input placeholder="Enter your GST number" />
+            </Form.Item>
+
+            <Form.Item name="address" label="Business Address" rules={[{ required: true, message: "Address is required" }]}>
+              <Input.TextArea rows={2} placeholder="Enter your business address" />
+            </Form.Item>
+
+            <Form.Item name="password" label="Password" rules={[{ required: true, message: "Password is required" }]}>
+              <Input.Password placeholder="Enter a secure password" />
+            </Form.Item>
+
+            <Form.Item label="Upload Proof Document">
+              <Upload beforeUpload={() => false} onChange={handleFileChange} maxCount={1}>
+                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              </Upload>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading} block>
+                Register & Login
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 
-export default SellerRegisration;
+export default SellerRegister;
