@@ -1,52 +1,43 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./signup.css"; // Import updated CSS
+import "./signup.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    phone: "",
+    gender: "",
+    dob: "",
+    address: "",
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Handle Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle Signup Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-  
-    const userData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      phone: formData.phone || "", // Ensure phone is included
-      dob: formData.dob || "",
-      gender: formData.gender || "",
-      address: formData.address || "",
-    };
-  
-    console.log("Sending signup data:", userData); // Debugging step
-  
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", userData);
-      sessionStorage.setItem("user", JSON.stringify(res.data));
-      navigate("/login");
+      const res = await axios.post("http://localhost:5000/api/auth/user/signup", formData);
+
+      // Navigate to email verification with email info
+      navigate("/verify-mail", { state: { email: formData.email } });
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="signup-container">
@@ -67,6 +58,27 @@ const Signup = () => {
 
           <div className="input-group">
             <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
+          </div>
+
+          <div className="input-group">
+            <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required />
+          </div>
+
+          <div className="input-group">
+            <select name="gender" value={formData.gender} onChange={handleChange} required>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <input type="date" name="dob" value={formData.dob} onChange={handleChange} required />
+          </div>
+
+          <div className="input-group">
+            <input type="text" name="address" placeholder="Address" value={formData.address} onChange={handleChange} required />
           </div>
 
           <button type="submit" className="signup-btn" disabled={loading}>

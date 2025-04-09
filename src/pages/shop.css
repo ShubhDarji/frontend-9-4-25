@@ -1,21 +1,32 @@
 /* General Layout */
-.container {
-  padding-top: 50px;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background: #f5f1eb; /* Beige background */
-}
 
-/* Filter Sidebar */
+
+/* ✅ Filter Sidebar - Fixed and Scrollable */
 .filter-sidebar {
-  width: 25%;
+  width: 300px;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+
+  
+    position: fixed;
+
+    align-self: flex-start;
+    height: fit-content;
 }
 
+/* ✅ Product Section - Scrollable */
+.product-section {
+  flex-grow: 1;
+  margin-left: 320px; /* Account for fixed sidebar */
+  padding: 20px;
+
+  background-color: #fff;
+}
+
+/* Filter Section */
 .filter-section {
   display: flex;
   flex-direction: column;
@@ -25,12 +36,13 @@
 .filter-section h3 {
   font-size: 20px;
   font-weight: bold;
-  color: #ff6600; /* Orange heading */
+  color: #ff6600;
   margin-bottom: 10px;
 }
 
-/* Search Bar */
+/* ✅ Search Bar */
 .search-container {
+  margin: 2rem 0rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,7 +72,7 @@
 .filter-group label {
   font-size: 14px;
   font-weight: bold;
-  color: #000; /* Black for contrast */
+  color: #000;
 }
 
 .filter-group select {
@@ -73,21 +85,16 @@
   color: #333;
 }
 
-/* Product Section */
-.product-section {
-  width: 75%;
-  padding-left: 20px;
-}
-
+/* ✅ Product Section Title */
 .product-section h2 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
   margin-top: 20px;
-  color: #000; /* Black for contrast */
+  color: #000;
 }
 
-/* Product Grid */
+/* ✅ Product Grid */
 .product-grid {
   display: flex;
   flex-wrap: wrap;
@@ -98,23 +105,26 @@
   background: white;
   border-radius: 10px;
   padding: 15px;
+  width: 300px;
   box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease-in-out;
-  width: 300px;
   border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
 }
 
-/* Product Details */
+/* ✅ Product Image */
 .product-card img {
   width: 100%;
-  height: auto;
+  height: 250px; /* Fixed height for uniformity */
+  object-fit: contain;
   border-radius: 8px;
 }
 
+/* ✅ Product Details */
 .product-card h3 {
   font-size: 16px;
   font-weight: bold;
@@ -127,9 +137,9 @@
   color: #777;
 }
 
-/* Price Styling */
+/* ✅ Price Styling */
 .product-price {
-  color: #008000; /* Green for positive prices */
+  color: #008000;
   font-size: 18px;
   font-weight: bold;
 }
@@ -140,7 +150,7 @@
   font-size: 14px;
 }
 
-/* Discount Badge */
+/* ✅ Discount Badge */
 .discount-badge {
   position: absolute;
   top: 10px;
@@ -153,7 +163,7 @@
   border-radius: 5px;
 }
 
-/* Buttons */
+/* ✅ Buttons */
 .btn-container {
   display: flex;
   justify-content: space-between;
@@ -193,36 +203,37 @@
   background: #cc5200;
 }
 
-/* Responsive Design */
+/* ✅ Responsive Design */
 @media (max-width: 1024px) {
   .filter-sidebar {
-    width: 100%;
+    width: 250px;
   }
-
+  
   .product-section {
-    width: 100%;
-    padding-left: 0;
+    margin-left: 270px;
   }
 
-  .product-grid {
-    justify-content: center;
-  }
 
-  .product-card {
-    width: 300px;
-  }
 }
 
 @media (max-width: 768px) {
-  .search-container {
-    width: 100%;
+  .container {
+    flex-direction: column;
   }
 
   .filter-sidebar {
-    padding: 10px;
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .product-section {
+    margin-left: 0;
+    height: calc(100vh - 350px); /* Adjust height based on the sidebar */
   }
 
   .product-card {
-    width: 300px;
+  
   }
 }

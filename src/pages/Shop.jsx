@@ -1,87 +1,157 @@
 import { useState, Fragment, useEffect } from "react";
-import { Col, Container, Row } from "react-bootstrap";
-import { products } from "../utils/products"; // Product data
-import ShopList from "../components/ShopList"; // Component to display products
-import useWindowScrollToTop from "../hooks/useWindowScrollToTop"; // Custom hook
-import FilterSelect from "../components/FilterSelect"; // Updated filter component
+import { Col, Container, Row, Spinner, Alert } from "react-bootstrap";
+import axios from "axios";
+import { products as staticProducts } from "../utils/products";
+import ShopList from "../components/ShopList";
+import useWindowScrollToTop from "../hooks/useWindowScrollToTop";
+import FilterSelect from "../components/FilterSelect";
 import SearchBar from "../components/SeachBar/SearchBar";
 import "./shop.css";
 
 const Shop = () => {
-  const [filterList, setFilterList] = useState(products);
+  const [filterList, setFilterList] = useState([]);
   const [searchWord, setSearchWord] = useState("");
   const [filters, setFilters] = useState({
     category: "All",
     brand: "All",
     priceRange: "All",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  useWindowScrollToTop(); // Scrolls to top when the component mounts
+  useWindowScrollToTop();
 
-  // Function to filter products dynamically
+  // ✅ Generate Image URL with Fallback
+ // ✅ Generate Image URL with Fallback
+const getImageUrl = (imagePath) => {
+  if (!imagePath) {
+    console.warn("Image missing, using fallback.");
+    return "/assets/default-product.png"; // Fallback for missing images
+  }
+  
+  const isAbsoluteUrl = /^https?:\/\//.test(imagePath);
+  return isAbsoluteUrl 
+    ? imagePath 
+    : `http://localhost:5000/uploads/${encodeURIComponent(imagePath)}`;
+};
+
+// ✅ Fetch and Merge Products with Image URLs
+const fetchProducts = async () => {
+  setLoading(true);
+  setError("");
+
+  try {
+    const { data: apiProducts } = await axios.get("http://localhost:5000/api/products");
+
+    // ✅ Ensure Product Image URLs are Available
+    const formattedAPIProducts = apiProducts
+      .filter((product) => product.status === "Active")
+      .map((product) => ({
+        ...product,
+        id: product._id,
+        primaryImageUrl: product.primaryImage || "/assets/default-product.png", // Use default if missing
+      }));
+
+    // ✅ Format Static Products (Fallback)
+    const formattedStaticProducts = staticProducts.map((product) => ({
+      ...product,
+      primaryImageUrl: product.primaryImage || "/assets/default-product.png",
+    }));
+
+    // ✅ Remove Duplicates
+    const allProducts = [...formattedAPIProducts, ...formattedStaticProducts];
+    const uniqueProducts = Array.from(
+      new Map(allProducts.map((product) => [product.id || product.productName, product])).values()
+    );
+
+    setFilterList(uniqueProducts);
+  } catch (error) {
+    setError(error.response?.data?.message || "Failed to load products. Please try again.");
+    console.error("Error fetching products:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  // ✅ Apply Filters and Search
   const applyFilters = () => {
-    let filtered = products;
+    let filtered = [...filterList];
 
-    // Apply search filter
-    if (searchWord) {
+    if (searchWord.trim()) {
       filtered = filtered.filter((item) =>
-        item.productName.toLowerCase().includes(searchWord.toLowerCase())
+        item.productName.toLowerCase().includes(searchWord.toLowerCase().trim())
       );
     }
 
-    // Apply category filter
     if (filters.category !== "All") {
       filtered = filtered.filter((item) => item.category === filters.category);
     }
 
-    // Apply brand filter
     if (filters.brand !== "All") {
       filtered = filtered.filter((item) => item.companyName === filters.brand);
     }
 
-    // Apply price range filter
     if (filters.priceRange !== "All") {
-      const getPriceRangeValues = (range) => {
-        const priceMap = {
-          "Under ₹5,000": [0, 5000],
-          "₹5,000 - ₹10,000": [5000, 10000],
-          "₹10,000 - ₹20,000": [10000, 20000],
-          "₹20,000 - ₹50,000": [20000, 50000],
-          "₹50,000 - ₹1,00,000": [50000, 100000],
-          "Above ₹1,00,000": [100000, Infinity],
-        };
-        return priceMap[range] || [0, Infinity];
+      const priceMap = {
+        "Under ₹5,000": [0, 5000],
+        "₹5,000 - ₹10,000": [5000, 10000],
+        "₹10,000 - ₹20,000": [10000, 20000],
+        "₹20,000 - ₹50,000": [20000, 50000],
+        "₹50,000 - ₹1,00,000": [50000, 100000],
+        "Above ₹1,00,000": [100000, Infinity],
       };
-
-      const [minPrice, maxPrice] = getPriceRangeValues(filters.priceRange);
+      const [minPrice, maxPrice] = priceMap[filters.priceRange];
       filtered = filtered.filter((item) => item.price >= minPrice && item.price <= maxPrice);
     }
 
-    setFilterList(filtered);
+    return filtered;
   };
 
-  // Apply filters whenever search or filters change
   useEffect(() => {
-    applyFilters();
-  }, [searchWord, filters]);
+    fetchProducts();
+  }, []);
+
+  const displayedProducts = applyFilters();
+
+  // ✅ Error and Loading UI
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" role="status" />
+        <p>Loading products...</p>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="text-center py-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Fragment>
-      <Container fluid>
+      <Container fluid className="shop-layout">
         <Row>
-          {/* Sidebar Filters (Left) */}
+          {/* ✅ Filters Section */}
           <Col md={3} className="filter-sidebar">
-            <div className="filter-section">
-              <h3>Filters</h3>
-              <SearchBar setSearchWord={setSearchWord} />
-              <FilterSelect filters={filters} setFilters={setFilters} products={products} />
-            </div>
+            <h3>Filters</h3>
+            <SearchBar setSearchWord={setSearchWord} />
+            <FilterSelect filters={filters} setFilters={setFilters} products={filterList} />
           </Col>
 
-          {/* Product Listing (Right) */}
+          {/* ✅ Products Section */}
           <Col md={9} className="product-section">
             <h2>All Products - {filters.brand !== "All" ? filters.brand : "All"}</h2>
-            <ShopList productItems={filterList} />
+            {displayedProducts.length > 0 ? (
+              <ShopList productItems={displayedProducts} />
+            ) : (
+              <Alert variant="info">No products found matching your criteria.</Alert>
+            )}
           </Col>
         </Row>
       </Container>

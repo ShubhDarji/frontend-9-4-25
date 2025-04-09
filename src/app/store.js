@@ -1,10 +1,12 @@
-import { configureStore } from "@reduxjs/toolkit";
-import cartSlice, { cartMiddleware } from "./features/cart/cartSlice";
+// src/app/store.js
 
-export const store = configureStore({
+import { configureStore } from "@reduxjs/toolkit";
+import cartSlice from "../app/features/cart/cartSlice"; // ✅ Correct
+const store = configureStore({
   reducer: {
     cart: cartSlice,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(cartMiddleware),
+  // No extra middleware unless needed
 });
+
+export default store;

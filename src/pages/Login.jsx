@@ -1,27 +1,57 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import "./login.css"; // Import updated CSS
+import "./login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    if (currentPath !== "/login" && currentPath !== "/signup") {
+      localStorage.setItem("lastVisitedPage", currentPath);
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      // Step 1: Login Request
+      const response = await axios.post("http://localhost:5000/api/auth/user/login", {
         email,
         password,
       });
 
-      sessionStorage.setItem("token", res.data.token);
-      sessionStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/profile");
+      const { token, user } = response.data;
+      if (!token || !user) {
+        throw new Error("Invalid response. Please try again.");
+      }
+
+      // Step 2: Save token separately
+      localStorage.setItem("token", token);
+
+      // Step 3: Fetch full user profile
+      const profileRes = await axios.get("http://localhost:5000/api/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const profileData = profileRes.data;
+
+      // Step 4: Save complete profile + token
+      localStorage.setItem("user", JSON.stringify({ ...profileData, token }));
+
+      // Step 5: Navigate to last visited or home
+      const lastVisitedPage = localStorage.getItem("lastVisitedPage") || "/";
+      navigate(lastVisitedPage);
     } catch (error) {
-      setError(error.response?.data?.message || "Invalid credentials");
+      console.error("Login error:", error);
+      setError(error.response?.data?.message || error.message || "An error occurred during login.");
     }
   };
 
@@ -35,11 +65,23 @@ const Login = () => {
 
         <form onSubmit={handleLogin}>
           <div className="input-group">
-            <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
           <div className="input-group">
-            <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
 
           <button type="submit" className="login-btn">Login</button>

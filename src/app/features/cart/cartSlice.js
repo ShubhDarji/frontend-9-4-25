@@ -1,65 +1,57 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
+// Initial state using localStorage
 const initialState = {
-  cartList: [],
+  cartList: JSON.parse(localStorage.getItem("cart")) || [],
+};
+
+// Utility function to save cart to localStorage
+const saveToLocalStorage = (cartList) => {
+  localStorage.setItem("cart", JSON.stringify(cartList));
 };
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
+    // ✅ Add to Cart (Increments quantity if product exists)
     addToCart: (state, action) => {
       const product = action.payload;
-      if (!product || !product.id) {
-        console.error('Invalid product data:', product);
-        return;
-      }
       const existingItem = state.cartList.find((item) => item.id === product.id);
       if (existingItem) {
-        existingItem.qty += 1;
+        existingItem.qty += product.qty || 1;
       } else {
-        state.cartList.push({ ...product, qty: 1 });
+        state.cartList.push({ ...product, qty: product.qty || 1 });
       }
+      saveToLocalStorage(state.cartList);
     },
-    decreaseQty: (state, action) => {
-      const { id, productName, price, imgUrl, qty } = action.payload;
-      if (!id) {
-        console.error("Invalid product data:", action.payload);
-        return;
-      }
-      
-      const existingItem = state.cartList.find((item) => item.id === productId);
-      if (existingItem) {
-        if (existingItem.qty > 1) {
-          existingItem.qty -= 1;
-        } else {
+
+    // ✅ Decrease Quantity (Removes if qty is 1)
+    decreaseQuantity: (state, action) => {
+      const productId = action.payload.id;
+      const item = state.cartList.find((item) => item.id === productId);
+      if (item) {
+        item.qty -= 1;
+        if (item.qty <= 0) {
           state.cartList = state.cartList.filter((item) => item.id !== productId);
         }
-      } else {
-        console.error('Product not found in cart:', productId);
       }
+      saveToLocalStorage(state.cartList);
     },
-    deleteProduct: (state, action) => {
-      const productId = action.payload;
-      if (!productId) {
-        console.error('Invalid product ID:', productId);
-        return;
-      }
-      const existingItem = state.cartList.find((item) => item.id === productId);
-      if (existingItem) {
-        state.cartList = state.cartList.filter((item) => item.id !== productId);
-      } else {
-        console.error('Product not found in cart:', productId);
-      }
+
+    // ✅ Remove Product
+    removeFromCart: (state, action) => {
+      state.cartList = state.cartList.filter((item) => item.id !== action.payload.id);
+      saveToLocalStorage(state.cartList);
+    },
+
+    // ✅ Clear Entire Cart
+    clearCart: (state) => {
+      state.cartList = [];
+      saveToLocalStorage(state.cartList);
     },
   },
 });
 
-// Define cartMiddleware
-export const cartMiddleware = (store) => (next) => (action) => {
-  console.log('Dispatching action:', action);
-  return next(action);
-};
-
-export const { addToCart, decreaseQty, deleteProduct } = cartSlice.actions;
+export const { addToCart, decreaseQuantity, removeFromCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

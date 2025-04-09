@@ -15,7 +15,7 @@ import {
   MenuFoldOutlined
 } from "@ant-design/icons";
 import Sidebar from "./sidebar";
-import Header from "./header";
+
 import StatsCard from "./StatsCard";
 import "./AdminDashboard.css"; // Import styles
 
@@ -52,18 +52,30 @@ const AdminDashboard = () => {
         axios.get("http://localhost:5000/api/admin/users", { headers }),
         axios.get("http://localhost:5000/api/admin/sellers", { headers }),
         axios.get("http://localhost:5000/api/admin/products", { headers }),
-        axios.get("http://localhost:5000/api/admin/orders", { headers }),
+        axios.get("http://localhost:5000/api/orders/admin", { headers }),
       ]);
 
-      setUsers(usersRes.data || []);
-      setSellers(sellersRes.data || []);
-      setProducts(productsRes.data || []);
-      setOrders(ordersRes.data || []);
+      setUsers(usersRes.data);
+      setSellers(sellersRes.data);
+      setProducts(productsRes.data);
+      setOrders(ordersRes.data);
     } catch (error) {
-      console.error("❌ Fetching data error:", error.response?.data || error.message);
+      console.error("❌ Error:", error.response?.data || error.message);
       message.error("Failed to fetch data.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/orders/`, {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      message.success("User deleted successfully");
+      fetchAllData();
+    } catch (error) {
+      message.error(error.response?.data?.message || "Failed to delete user");
     }
   };
 
@@ -73,10 +85,9 @@ const AdminDashboard = () => {
       <Sidebar collapsed={collapsed} />
 
       <Layout className={collapsed ? "collapsed-content" : "main-content"}>
-        <Header title="Admin Dashboard" />
+
 
         <Content className="dashboard-content">
-          {/* Sidebar Toggle & Dark Mode */}
           <div className="top-controls">
             <Button type="text" onClick={() => setCollapsed(!collapsed)}>
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -118,7 +129,7 @@ const AdminDashboard = () => {
               {
                 title: "Actions",
                 render: (_, record) => (
-                  <Button icon={<DeleteOutlined />} danger>
+                  <Button icon={<DeleteOutlined />} danger onClick={() => deleteUser(record._id)}>
                     Delete
                   </Button>
                 ),

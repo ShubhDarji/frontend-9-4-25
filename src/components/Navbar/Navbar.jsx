@@ -14,36 +14,35 @@ const Navbar = () => {
 
     updateCartCount();
     window.addEventListener("storage", updateCartCount);
-
     return () => window.removeEventListener("storage", updateCartCount);
   }, []);
 
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <Link to="/" className="logo">
-          E-TEK<span>Online Store</span>
-        </Link>
+      <header className="navbar">
+        <div className="navbar__left">
+          <Link to="/" className="navbar__logo">
+            <span className="logo-main">E-TEK</span>
+            <span className="logo-sub">Online Store</span>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/shop">Shop</Link></li>
-          <li><Link to="/login">Login</Link></li>
-          <li><Link to="/about">About</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
-        </ul>
+        <nav className="navbar__center">
+          <ul className="navbar__nav">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/shop">Shop</Link></li>
+            
+            <li><Link to="/about">About</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
+          </ul>
+        </nav>
 
-        {/* Icons */}
-        <div className="icon-container">
-          <Link to="/profile" aria-label="Profile"><User /></Link>
+        <div className="navbar__right">
+          <Link to="/account" aria-label="Profile"><User /></Link>
           <Link to="/cart" className="cart-icon" aria-label="Cart">
             <ShoppingCart />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </Link>
-
-          {/* Mobile Toggle Button (only visible on small screens) */}
           <button
             className="mobile-toggle"
             onClick={() => setIsSidebarVisible(true)}
@@ -52,7 +51,7 @@ const Navbar = () => {
             <Menu />
           </button>
         </div>
-      </nav>
+      </header>
 
       {/* Mobile Sidebar */}
       <div className={`mobile-overlay ${isSidebarVisible ? "show" : ""}`}>
@@ -67,8 +66,8 @@ const Navbar = () => {
           <ul>
             <li><Link to="/" onClick={() => setIsSidebarVisible(false)}>Home</Link></li>
             <li><Link to="/shop" onClick={() => setIsSidebarVisible(false)}>Shop</Link></li>
-            <li><Link to="/login" onClick={() => setIsSidebarVisible(false)}>Login</Link></li>
-            <li><Link to="/about" onClick={() => setIsSidebarVisible(false)}>About</Link></li>
+        
+            <li><Link to="/my-account" onClick={() => setIsSidebarVisible(false)}>About</Link></li>
             <li><Link to="/contact" onClick={() => setIsSidebarVisible(false)}>Contact</Link></li>
           </ul>
         </div>

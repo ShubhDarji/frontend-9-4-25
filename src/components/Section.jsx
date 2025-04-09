@@ -15,17 +15,17 @@ const Section = ({ title, productItems, maxItems = 6 }) => {
 
   useEffect(() => {
     gsap.fromTo(
-      sectionRef.current,
-      { opacity: 0, y: 50 },
+      sectionRef.current.querySelectorAll(".product-card"),
+      { opacity: 0, y: 40 },
       {
         opacity: 1,
         y: 0,
         duration: 0.6,
-        ease: "power3.out",
+        ease: "power2.out",
+        stagger: 0.1,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 85%",
-          toggleActions: "play none none reverse",
         },
       }
     );

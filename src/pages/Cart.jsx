@@ -1,113 +1,96 @@
-// src/features/cart/Cart.jsx
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, decreaseQty, deleteProduct } from '../app/features/cart/cartSlice';
-import './cart.css';
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, decreaseQuantity, removeFromCart, clearCart } from "../app/features/cart/cartSlice";
+import { FaTrashAlt, FaShoppingCart } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import "./cart.css";
+
+// ✅ Utility to Get Image URL
+const getImageUrl = (imagePath, imgUrl) => {
+  if (imagePath) {
+    return imagePath.startsWith("http")
+      ? imagePath
+      : `http://localhost:5000/uploads/${encodeURIComponent(imagePath)}`;
+  }
+  return imgUrl || "/default-product.png";
+};
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const cartList = useSelector((state) => state.cart.cartList);
-
-  // Calculate total price
   const totalPrice = cartList.reduce((total, item) => total + item.qty * item.price, 0);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    try {
-      const savedCart = JSON.parse(localStorage.getItem('cart'));
-      if (savedCart && Array.isArray(savedCart)) {
-        savedCart.forEach((item) => {
-          if (item && item.id) {
-            dispatch(addToCart(item));
-          } else {
-            console.error('Invalid item in saved cart:', item);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load cart from localStorage:', error);
+  // ✅ Handle Checkout
+  const handleCheckout = () => {
+    if (cartList.length === 0) {
+      alert("Your cart is empty. Add some products before proceeding to checkout!");
+      return;
     }
-  }, [dispatch]);
-
-  // Save cart to localStorage when cartList changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('cart', JSON.stringify(cartList));
-    } catch (error) {
-      console.error('Failed to save cart to localStorage:', error);
-    }
-  }, [cartList]);
-
-  const handleAddToCart = (product) => {
-    if (product && product.id) {
-      dispatch(addToCart(product));
-    } else {
-      console.error('Invalid product data:', product);
-    }
-  };
-
-  const handleDecreaseQty = (productId) => {
-    if (productId) {
-      dispatch(decreaseQty(productId));
-    } else {
-      console.error('Invalid product ID:', productId);
-    }
-  };
-
-  const handleDeleteProduct = (productId) => {
-    if (productId) {
-      dispatch(deleteProduct(productId));
-    } else {
-      console.error('Invalid product ID:', productId);
-    }
+    console.log("Navigating to Checkout with Data:", cartList);
+    navigate("/checkout", { state: { products: cartList } });
   };
 
   return (
     <section className="cart-section">
       <div className="container">
+        {/* ✅ Empty Cart UI */}
         {cartList.length === 0 ? (
-          <h1 className="empty-cart">Your Cart is Empty</h1>
+          <div className="empty-cart">
+            <FaShoppingCart className="cart-icon" />
+            <h2>Your Cart is Empty</h2>
+            <Link to="/" className="continue-shopping">Continue Shopping</Link>
+          </div>
         ) : (
-          <div className="cart-container">
-            <div className="cart-items">
+          <div className="cart-grid">
+            {/* ✅ Product List Section */}
+            <div className="cart-products">
+              <div className="cart-header">
+                <h1>Your Cart</h1>
+                <button onClick={() => dispatch(clearCart())} className="clear-cart">Clear Cart</button>
+              </div>
+
               {cartList.map((item) => (
-                <div className="cart-item" key={item.id}>
-                  <img src={item.imgUrl} alt={item.name} className="cart-item-image" />
-                  <div className="cart-item-details">
-                    <h3 className="cart-item-title">{item.name}</h3>
-                    <p className="cart-item-price">₹{item.price.toFixed(2)}</p>
-                    <div className="cart-item-quantity">
-                      <button
-                        className="quantity-btn"
-                        onClick={() => handleDecreaseQty(item.id)}
-                      >
-                        -
-                      </button>
-                      <span className="quantity">{item.qty}</span>
-                      <button
-                        className="quantity-btn"
-                        onClick={() => handleAddToCart(item)}
-                      >
-                        +
-                      </button>
+                <div key={item.id || item._id} className="cart-item">
+                  {/* ✅ Product Image */}
+                  <img
+                    src={getImageUrl(item.primaryImage, item.imgUrl)}
+                    alt={item.productName}
+                    className="cart-image"
+                    onError={(e) => { e.target.src = "/default-product.png"; }}
+                  />
+
+                  {/* ✅ Product Details */}
+                  <div className="item-details">
+                    <h3>{item.productName}</h3>
+                    <p>₹{item.price.toFixed(2)}</p>
+                    <div className="quantity-control">
+                      <button onClick={() => dispatch(decreaseQuantity({ id: item.id || item._id }))}>-</button>
+                      <span>{item.qty}</span>
+                      <button onClick={() => dispatch(addToCart(item))}>+</button>
                     </div>
-                    <button
-                      className="remove-btn"
-                      onClick={() => handleDeleteProduct(item.id)}
-                    >
-                      Remove
-                    </button>
                   </div>
+
+                  {/* ✅ Remove Product */}
+                  <button onClick={() => dispatch(removeFromCart({ id: item.id || item._id }))} className="remove-btn">
+                    <FaTrashAlt />
+                  </button>
                 </div>
               ))}
             </div>
-            <div className="cart-summary">
+
+            {/* ✅ Summary Section */}
+            <div className="order-summary">
               <h2>Order Summary</h2>
               <div className="summary-details">
-                <p>Total Items: {cartList.length}</p>
-                <p>Total Price: ₹{totalPrice.toFixed(2)}</p>
+                <p>Total Items: <span>{cartList.reduce((sum, item) => sum + item.qty, 0)}</span></p>
+                <p>Total Price: <span>₹{totalPrice.toFixed(2)}</span></p>
               </div>
-              <button className="checkout-btn">Proceed to Checkout</button>
+              
+              {/* ✅ Checkout Button */}
+              <button className="checkout-btn" onClick={handleCheckout}>
+                Proceed to Checkout
+              </button>
             </div>
           </div>
         )}

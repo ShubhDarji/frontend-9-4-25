@@ -1,54 +1,95 @@
 import { useState } from "react";
-import { Col, Container, Row, Accordion, Button } from "react-bootstrap";
+import { Col, Container, Row, Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { addToCart } from "../../app/features/cart/cartSlice";
 import "./product-details.css";
 
+// ✅ Utility to Get Image URL with Fallback
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return '/assets/default-product.png';
+
+  const isAbsoluteUrl = /^https?:\/\//.test(imagePath);
+  return isAbsoluteUrl
+    ? imagePath
+    : `http://localhost:5000/uploads/${encodeURIComponent(imagePath)}`;
+};
+
 const ProductDetails = ({ selectedProduct }) => {
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(selectedProduct?.imgUrl);
 
+  // ✅ Handle Missing Product
   if (!selectedProduct) {
     return <h2 className="text-center">Product not found</h2>;
   }
 
-  const discountPercentage = selectedProduct.originalPrice
-    ? Math.round(
-        ((selectedProduct.originalPrice - selectedProduct.price) /
-          selectedProduct.originalPrice) *
-          100
-      )
-    : 0;
+  // ✅ Determine if Product is Dynamic or Static
+  const isDynamicProduct = !!selectedProduct._id;
+  const inStock = selectedProduct.stock > 0;
+  const isActive = selectedProduct.status === "Active";
 
+  // ✅ Primary and Additional Images Handling
+  const primaryImage = isDynamicProduct
+    ? getImageUrl(selectedProduct.primaryImage)
+    : getImageUrl(selectedProduct.imgUrl);
+
+  const additionalImages = isDynamicProduct
+    ? (selectedProduct.secondaryImages || []).map(getImageUrl)
+    : (selectedProduct.additionalImages || []).map(getImageUrl);
+
+  const allImages = [primaryImage, ...additionalImages];
+  const [selectedImage, setSelectedImage] = useState(primaryImage);
+
+  // ✅ Calculate Discount
+  const discountPercentage =
+    selectedProduct.originalPrice && selectedProduct.originalPrice > selectedProduct.price
+      ? Math.round(((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100)
+      : 0;
+
+  // ✅ Handle Quantity Changes with Stock Validation
   const handleQuantityChange = (amount) => {
-    setQuantity((prev) => Math.max(1, prev + amount));
+    setQuantity((prev) => {
+      const newQuantity = Math.max(1, prev + amount);
+      return selectedProduct.stock ? Math.min(newQuantity, selectedProduct.stock) : newQuantity;
+    });
   };
 
+  // ✅ Add to Cart
   const handleAddToCart = () => {
-    dispatch(addToCart({ product: selectedProduct, num: quantity }));
+    if (!inStock) {
+      toast.error("This product is out of stock!");
+      return;
+    }
+    dispatch(addToCart({ ...selectedProduct, qty: quantity }));
     toast.success(`${selectedProduct.productName} added to cart!`);
+    setQuantity(1); // Reset quantity
   };
 
+  // ✅ Buy Now
   const handleBuyNow = () => {
+    if (!inStock) {
+      toast.error("Cannot proceed to checkout. Product is out of stock!");
+      return;
+    }
     toast.info("Proceeding to checkout...");
   };
-
-  const allImages = [selectedProduct.imgUrl, ...(selectedProduct.additionalImages ?? [])];
 
   return (
     <section className="product-page">
       <Container>
-        <Row className="justify-content-center">
-          {/* Product Image with Thumbnails */}
-          <Col md={6} className="product-image-container">
+        <Row>
+          {/* ✅ Product Images */}
+          <Col md={6}>
             <div className="main-image">
               <img
-                loading="lazy"
                 src={selectedImage}
-                alt={selectedProduct.productName}
+                alt={selectedProduct.productName || "Product Image"}
                 className="selected-img"
+                onError={(e) => {
+                  console.error("Failed to load main image:", e.target.src);
+                  e.target.src = '/assets/default-product.png';
+                }}
               />
             </div>
             <div className="image-thumbnails">
@@ -59,77 +100,49 @@ const ProductDetails = ({ selectedProduct }) => {
                   alt={`Thumbnail ${index + 1}`}
                   className={selectedImage === img ? "active-thumbnail" : ""}
                   onClick={() => setSelectedImage(img)}
+                  onError={(e) => {
+                    console.error(`Failed to load thumbnail ${index + 1}:`, e.target.src);
+                    e.target.src = '/assets/default-product.png';
+                  }}
                 />
               ))}
             </div>
           </Col>
 
-          {/* Product Details */}
-          <Col md={6} className="product-info">
-            <h2 className="product-title">{selectedProduct.productName}</h2>
+          {/* ✅ Product Details */}
+          <Col md={6}>
+            <h2>{selectedProduct.productName}</h2>
+            <p className="product-price">₹{selectedProduct.price}</p>
 
-            <div className="rate">
-              <div className="stars">
-                {[...Array(5)].map((_, index) => (
-                  <i
-                    key={index}
-                    className={`fa fa-star ${
-                      index < Math.round(selectedProduct.avgRating) ? "filled" : ""
-                    }`}
-                  />
-                ))}
-              </div>
-              <span>{selectedProduct.avgRating} Ratings</span>
+            {/* ✅ Show Discount Only When Applicable */}
+            {discountPercentage > 0 && (
+              <span className="product-old-price">
+                ₹{selectedProduct.originalPrice} ({discountPercentage}% OFF)
+              </span>
+            )}
+
+            <p>{selectedProduct.shortDesc || selectedProduct.description}</p>
+
+            {/* ✅ Stock Status */}
+            {!inStock && <p className="out-of-stock">Out of Stock</p>}
+            {isActive ? (
+              <p className="stock-status">In Stock: {selectedProduct.stock || "Unlimited"}</p>
+            ) : (
+              <p className="inactive-status">This product is currently inactive.</p>
+            )}
+
+            {/* ✅ Quantity Controls */}
+            <div className="quantity-controls">
+              <Button variant="outline-primary" onClick={() => handleQuantityChange(-1)}>-</Button>
+              <span>{quantity}</span>
+              <Button variant="outline-primary" onClick={() => handleQuantityChange(1)}>+</Button>
             </div>
 
-            <div className="price-section">
-              <span className="product-price">₹{selectedProduct.price}</span>
-              {selectedProduct.originalPrice && (
-                <>
-                  <span className="product-old-price">₹{selectedProduct.originalPrice}</span>
-                  <span className="product-discount">({discountPercentage}% OFF)</span>
-                </>
-              )}
-            </div>
-
-            <p className="product-desc">{selectedProduct.shortDesc}</p>
-
-            {/* Quantity & Cart Controls */}
+            {/* ✅ Action Buttons */}
             <div className="cart-controls">
-              <div className="qty-container">
-                <button className="qty-btn" onClick={() => handleQuantityChange(-1)}>-</button>
-                <input className="qty-input" type="text" value={quantity} readOnly />
-                <button className="qty-btn" onClick={() => handleQuantityChange(1)}>+</button>
-              </div>
-              <Button className="add-to-cart-btn" onClick={handleAddToCart}>
-                Add To Cart
-              </Button>
-              <Button className="buy-now-btn" onClick={handleBuyNow}>
-                Buy Now
-              </Button>
+              <Button onClick={handleAddToCart} disabled={!inStock || !isActive}>Add To Cart</Button>
+              <Button onClick={handleBuyNow} disabled={!inStock || !isActive}>Buy Now</Button>
             </div>
-
-            {/* Additional Information */}
-            <Accordion defaultActiveKey="0" className="product-accordion">
-              <Accordion.Item eventKey="0">
-                <Accordion.Header>Description</Accordion.Header>
-                <Accordion.Body>{selectedProduct.description}</Accordion.Body>
-              </Accordion.Item>
-              <Accordion.Item eventKey="1">
-                <Accordion.Header>Specifications</Accordion.Header>
-                <Accordion.Body>
-                  <ul>
-                    {selectedProduct.specifications.map((spec, index) => (
-                      <li key={index}>{spec}</li>
-                    ))}
-                  </ul>
-                </Accordion.Body>
-              </Accordion.Item>
-              <Accordion.Item eventKey="2">
-                <Accordion.Header>Return Policy</Accordion.Header>
-                <Accordion.Body>{selectedProduct.returnPolicy}</Accordion.Body>
-              </Accordion.Item>
-            </Accordion>
           </Col>
         </Row>
       </Container>

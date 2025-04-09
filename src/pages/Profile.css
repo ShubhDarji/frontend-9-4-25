@@ -1,90 +1,91 @@
 .profile-container {
+  padding: 2rem;
   display: flex;
   justify-content: center;
-  align-items: center;
+  background-color: #f9fdfb;
   min-height: 100vh;
-  background-color: #f8f9fa;
 }
 
 .profile-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 400px;
-  text-align: center;
+  background: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 700px;
 }
 
 .profile-card h2 {
-  font-size: 24px;
-  margin-bottom: 15px;
-}
-
-.profile-picture-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 15px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #222;
 }
 
 .profile-image {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 10px;
-}
-
-.no-profile-image {
-  width: 120px;
-  height: 120px;
   border-radius: 50%;
-  background: #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: white;
-}
-
-.profile-button {
-  cursor: pointer;
-  background: #007bff;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 5px;
-  display: inline-block;
+  margin-bottom: 1rem;
+  border: 2px solid #ddd;
 }
 
 .form-group {
-  text-align: left;
-  margin-bottom: 12px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-  font-weight: bold;
-  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #333;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-  width: 100%;
-  padding: 8px;
+  padding: 0.8rem 1rem;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #2a9d8f;
+  background-color: #fff;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .btn {
-  background: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
   width: 100%;
+  background-color: #2a9d8f;
+  color: #fff;
+  padding: 0.9rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .btn:hover {
-  background: #218838;
+  background-color: #21867a;
+}
+
+.message {
+  text-align: center;
+  color: #007bff;
+  font-weight: 500;
+  margin-bottom: 1rem;
 }

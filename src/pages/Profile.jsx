@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Profile.css";
 
 const Profile = () => {
-  const [user, setUser] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    dob: "",
-    gender: "",
-    address: "",
-    bio: "",
-  });
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,41 +18,35 @@ const Profile = () => {
       navigate("/login");
       return;
     }
+
     fetchUserProfile();
   }, [navigate]);
 
   const fetchUserProfile = async () => {
     try {
-      setLoading(true);
       const token = localStorage.getItem("token");
-      if (!token) return;
-  
       const res = await axios.get("http://localhost:5000/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (res.data) {
-        setUser({
-          name: res.data.name || "",
-          email: res.data.email || "",
-          phone: res.data.phone || "",
-          dob: res.data.dob || "",
-          gender: res.data.gender ? res.data.gender.toLowerCase() : "",
-          address: res.data.address || "",
-          bio: res.data.bio || "",
-        });
+        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
       }
     } catch (err) {
-      setMessage("Failed to fetch user data.");
+      console.error("Profile fetch error:", err);
+      toast.error("Failed to fetch user data.");
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleChange = (e) => {
@@ -67,37 +55,44 @@ const Profile = () => {
 
   const updateProfile = async (e) => {
     e.preventDefault();
-    setMessage("");
-
     const token = localStorage.getItem("token");
-    if (!token) return;
-
+    if (!token) {
+      toast.error("Authentication error. Please log in again.");
+      return;
+    }
+  
+    // Require profile picture if not already uploaded
+    if (!user.profilePic && !selectedFile) {
+      toast.error("Please upload a profile picture.");
+      return;
+    }
+  
     const formData = new FormData();
+    formData.append("name", user.name || "");
+    formData.append("phone", user.phone || "");
+    formData.append("gender", user.gender || "");
+    formData.append("address", user.address || "");
+    formData.append("bio", user.bio || "");
+    formData.append("dob", user.dob || "");
+  
+    // Attach new file only if selected
     if (selectedFile) {
       formData.append("profilePicture", selectedFile);
     }
-
-    for (const key in user) {
-      formData.append(key, user[key] || "");
-    }
-
+  
     try {
-      const { data } = await axios.put(
-        "http://localhost:5000/api/users/profile",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setMessage("Profile updated successfully!");
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
+      const res = await axios.put("http://localhost:5000/api/users/profile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      toast.success(res.data.message || "Profile updated successfully!");
+      fetchUserProfile();
     } catch (error) {
-      setMessage("Failed to update profile. Try again.");
+      console.error("Profile update error:", error);
+      toast.error(error?.response?.data?.message || "An error occurred");
     }
   };
 
@@ -108,12 +103,14 @@ const Profile = () => {
       ) : user ? (
         <div className="profile-card">
           <h2>Your Profile</h2>
-          <p>{message}</p>
+
           <form onSubmit={updateProfile}>
             <div className="form-group">
-              {user.profilePicture ? (
+              {previewUrl ? (
+                <img src={previewUrl} alt="Preview" className="profile-image" />
+              ) : user.profilePic ? (
                 <img
-                  src={`http://localhost:5000${user.profilePicture}`}
+                  src={`http://localhost:5000${user.profilePic}`}
                   alt="Profile"
                   className="profile-image"
                 />
@@ -125,27 +122,17 @@ const Profile = () => {
 
             <div className="form-group">
               <label>Full Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-              />
+              <input type="text" name="name" value={user.name || ""} onChange={handleChange} />
             </div>
 
             <div className="form-group">
               <label>Email:</label>
-              <input type="email" name="email" value={user.email} disabled />
+              <input type="email" name="email" value={user.email || ""} disabled />
             </div>
 
             <div className="form-group">
               <label>Phone:</label>
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
-                onChange={handleChange}
-              />
+              <input type="text" name="phone" value={user.phone || ""} onChange={handleChange} />
             </div>
 
             <div className="form-group">
@@ -153,7 +140,7 @@ const Profile = () => {
               <input
                 type="date"
                 name="dob"
-                value={user.dob}
+                value={user.dob ? user.dob.split("T")[0] : ""}
                 onChange={handleChange}
               />
             </div>
@@ -161,30 +148,21 @@ const Profile = () => {
             <div className="form-group">
               <label>Gender:</label>
               <select name="gender" value={user.gender || ""} onChange={handleChange}>
-  <option value="">Select Gender</option>
-  <option value="male">Male</option>
-  <option value="female">Female</option>
-  <option value="other">Other</option>
-</select>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
             </div>
 
             <div className="form-group">
               <label>Address:</label>
-              <input
-                type="text"
-                name="address"
-                value={user.address}
-                onChange={handleChange}
-              />
+              <input type="text" name="address" value={user.address || ""} onChange={handleChange} />
             </div>
 
             <div className="form-group">
               <label>Bio:</label>
-              <textarea
-                name="bio"
-                value={user.bio}
-                onChange={handleChange}
-              ></textarea>
+              <textarea name="bio" value={user.bio || ""} onChange={handleChange}></textarea>
             </div>
 
             <button className="btn" type="submit">

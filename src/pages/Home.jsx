@@ -57,16 +57,14 @@ const newArrivalData = products?.filter((item) => ["oven", "ac"].includes(item.c
       <HeroSection />
       <Wrapper />
 
-      <section className="deal-timer">
-        <h2>🔥 Flash Sale Ends In: <span>{formatTime(timeLeft)}</span></h2>
-      </section>
-
-  
+   
     
 
       <Section title="Big Discount" productItems={discoutProducts} maxItems={6} />
       <Section title="New Arrivals" productItems={newArrivalData} maxItems={6} />
-      <Section title="Best Sale" productItems={bestSale} maxItems={6} />
+      <Section title="Best Sale" productItems={bestSale} maxItems={
+    3
+      } />
     </Fragment>
   );
 };

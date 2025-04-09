@@ -1,0 +1,89 @@
+/* ✅ Page Layout */
+.checkout-section {
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+}
+
+/* ✅ Card Styling */
+.summary-card,
+.ant-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+}
+
+/* ✅ Product List */
+.product-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-right: 16px;
+}
+
+/* ✅ Input Fields */
+.ant-input {
+  border-radius: 8px;
+  height: 40px;
+  font-size: 14px;
+}
+
+/* ✅ Select Dropdown */
+.ant-select {
+  width: 100%;
+}
+
+/* ✅ Total Amount Styling */
+h4 {
+  color: #1890ff;
+}
+
+/* ✅ Confirm Button */
+.ant-btn-primary {
+  background-color: #1890ff;
+  border: none;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.ant-btn-primary:hover {
+  background-color: #40a9ff;
+}
+
+/* ✅ Error and Success Messages */
+.ant-message-notice {
+  font-size: 14px;
+}
+
+/* ✅ Divider Customization */
+.ant-divider {
+  border-color: #eee;
+}
+
+/* ✅ Mobile Responsive */
+@media screen and (max-width: 600px) {
+  .checkout-section {
+    padding: 20px;
+  }
+
+  .product-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .ant-btn-primary {
+    font-size: 14px;
+  }
+}
